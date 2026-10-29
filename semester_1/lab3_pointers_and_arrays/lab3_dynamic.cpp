@@ -1,30 +1,29 @@
 #include <iostream>
 #include <random>
-#include <cmath>
 int MassiveSize() {
 	int n;
-		std::cout << "enter Masive size (n > 1)";
+		std::cout << "Введите размер массива (n > 1)";
 		std::cin >> n;
 		if (n <= 1) {
-			std::cout << "error (n should be >1.\n)";
-			return -1;
+			std::cout << "ОШИБКА (n должно быть >1)\n";
+			return 0;
 	}
 	return n;
 }
 void ManualFilling(long long* arr, int n) {
-	std::cout << "enter cell size n.\n";
+	std::cout << "Введите элементы массива n.\n";
 	for (int i = 0; i < n; ++i) {
 		std::cin >> arr[i];
 	}
 }
 bool RandomFilling(long long* arr, int n) {
 	long long a, b;
-		std::cout << " enter beginning of the interval of random a: ";
+		std::cout << " Введите начало интервала рандома a: ";
 		std::cin >> a;
-		std::cout << "enter end of the interval of randomm b: ";
+		std::cout << "Введите конец интервала рандома b: ";
 		std::cin >> b;
 		if (a > b) {
-			std::cout << "b should be > a";
+			std::cout << "b > a";
 			return false;
 	}
 	std::mt19937 gen(45218965);
@@ -35,53 +34,78 @@ bool RandomFilling(long long* arr, int n) {
 	return true;
 }
 void PrintMassive(const long long* arr, int n) {
-	std::cout << "massive: ";
+	std::cout << "Массив: ";
 	for (int i = 0; i < n; ++i) {
 		std::cout << arr[i] << " ";
 	}
 	std::cout << "\n";
 }
-int FindIndex(const long long* arr, int n) {
-	int Index = -1;
-	long long bestdiff = 922337203685477580;
+void FindPalindrome(long long* arr, int n, int& Start, int& Length) {
+	Start = -1;
+	Length = 0;
 
-	for (int i = 0; i < n; ++i) {
-		long long leftsum = 0;
-		long long rightsum = 0;
-		for (int t = 0; t < i; ++t) {
-			leftsum += arr[t];
-		}
+	if (n <= 0) return;
+	for (int length = n; length >= 2; length--) {
+		for (int start = 0; start <= n - length; start++) {
+			int end = start + length - 1;
 
-		for (int t = i + 1; t < n; ++t) {
-			rightsum += arr[t];
-		}
+			bool Palindrome = true;
+			int left = start;
+			int right = end;
 
-		long long diff = std::abs(leftsum - rightsum);
-		if (diff < bestdiff) {
-			bestdiff = diff;
-			Index = i;
+			while (left < right) {
+				if (arr[left] != arr[right]) {
+					Palindrome = false;
+					break;
+				}
+				left++;
+				right--;
+			}
+
+			if (Palindrome) {
+				Start = start;
+				Length = length;
+				return ;
+			}
 		}
 	}
-	return Index;
 }
 int main() {
+	setlocale(LC_ALL, "RU");
 	int n = MassiveSize();
 	if (n <= 1) {
 		return 1;
 	}
 	long long* arr = new long long[n];
 	int choise;
-	std::cout << " select filling method : 1- manual , another- random";
+	std::cout << " Выберите метод ввода : 1 - с клавиатуры ,другое - рандом";
 	std::cin >> choise;
 	if (choise == 1) {
 		ManualFilling(arr, n);
 	}
 	else {
-		RandomFilling(arr, n);
+		if (!RandomFilling(arr, n)) {
+			return 1;
+		}
 	}
 	PrintMassive(arr, n);
-	int idx = FindIndex(arr, n);
-	std::cout << "number of index: " << idx << "\n";
+
+	int Start = -1;
+	int Length = 0;
+
+	FindPalindrome(arr, n, Start, Length);
+
+	if (Length >= 2) {
+		std::cout << "Палиндром: ";
+		for (int i = Start; i < Start + Length; ++i) {
+			std::cout << arr[i] << " ";
+		}
+		std::cout << "\n";
+	}
+	else {
+		std::cout << "ОШИБКА: палиндром не найден\n";
+	}
+
 	delete[] arr;
 	return 0;
 }
